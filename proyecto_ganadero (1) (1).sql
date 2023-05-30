@@ -1,9 +1,9 @@
--- phpMyAdmin SQL Dump
+- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-05-2023 a las 23:11:10
+-- Tiempo de generación: 29-04-2023 a las 17:21:38
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -20,153 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `proyecto_ganadero`
 --
-
-DELIMITER $$
---
--- Funciones
---
-CREATE DEFINER=`root`@`localhost` FUNCTION `actualizarTelefonoVeterinario` (`id` INT, `nuevo_telefono` INT) RETURNS INT(11)  BEGIN
-  DECLARE numRows INT;
-  
-  UPDATE veterinario
-  SET telefono = nuevo_telefono
-  WHERE id_veterinario = id;
-  
-  SET numRows = ROW_COUNT();
-  
-  RETURN numRows;
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `calcularPromedioPesoTipoAnimal` (`idTipoAnimal` INT) RETURNS DECIMAL(10,2)  BEGIN
-  DECLARE promedio DECIMAL(10,2);
-  
-  SELECT AVG(peso) INTO promedio
-  FROM animal
-  WHERE id_tipo_animal = idTipoAnimal;
-  
-  RETURN promedio;
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `insertarVeterinario` (`id` INT, `nombre` VARCHAR(20), `telefono` INT, `especializacion` VARCHAR(30)) RETURNS INT(11)  BEGIN
-    DECLARE numRows INT;
-    
-    INSERT INTO veterinario (id_veterinario, nombre, telefono, especializacion)
-    VALUES (id, nombre, telefono, especializacion);
-    
-    SET numRows = ROW_COUNT();
-    
-    RETURN numRows;
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `insertar_suministro` (`p_id_suministro` INT, `p_hora` TIME, `p_cantidad` INT, `p_id_trabajador` INT, `p_id_animal` INT, `p_id_alimento` INT) RETURNS INT(11)  BEGIN
-  INSERT INTO suministro (id_suministro, hora, cantidad, id_trabajador, id_animal, id_alimento)
-  VALUES (p_id_suministro, p_hora, p_cantidad, p_id_trabajador, p_id_animal, p_id_alimento);
-  
-  RETURN LAST_INSERT_ID();
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `modificar_animal` (`animal_id` INT, `new_peso` INT, `new_edad` INT, `new_genero` VARCHAR(50), `new_tipo_animal` INT) RETURNS VARCHAR(50) CHARSET utf8mb4 COLLATE utf8mb4_general_ci  BEGIN
-  DECLARE message VARCHAR(50);
-
-  UPDATE `animal`
-  SET
-    `peso` = new_peso,
-    `edad` = new_edad,
-    `genero` = new_genero,
-    `id_tipo_animal` = new_tipo_animal
-  WHERE
-    `id_animal` = animal_id;
-
-  IF ROW_COUNT() > 0 THEN
-    SET message = 'Animal actualizado correctamente.';
-  ELSE
-    SET message = 'No se encontró ningún animal con el ID especificado.';
-  END IF;
-
-  RETURN message;
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `modificar_chequeo` (`p_id_chequeo` INT, `p_fecha_chequeo` DATETIME, `p_peso` VARCHAR(150), `p_recomendaciones` VARCHAR(50), `p_id_veterinario` INT, `p_id_procedimiento` INT, `p_id_animal` INT) RETURNS TINYINT(1)  BEGIN
-  DECLARE rows_affected INT;
-
-  UPDATE chequeo
-  SET fecha_chequeo = p_fecha_chequeo,
-      peso = p_peso,
-      recomendaciones = p_recomendaciones,
-      id_veterinario = p_id_veterinario,
-      id_procedimiento = p_id_procedimiento,
-      id_animal = p_id_animal
-  WHERE id_chequeo = p_id_chequeo;
-
-  SET rows_affected = ROW_COUNT();
-
-  IF rows_affected > 0 THEN
-    RETURN TRUE;
-  ELSE
-    RETURN FALSE;
-  END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `modificar_procedimiento` (`p_id_procedimiento` INT, `p_fecha_chequeo` DATETIME, `p_id_tipo` INT) RETURNS TINYINT(1)  BEGIN
-  DECLARE rows_affected INT;
-
-  UPDATE procedimiento
-  SET fecha_chequeo = p_fecha_chequeo,
-      id_tipo = p_id_tipo
-  WHERE id_procedimiento = p_id_procedimiento;
-
-  SET rows_affected = ROW_COUNT();
-
-  IF rows_affected > 0 THEN
-    RETURN TRUE;
-  ELSE
-    RETURN FALSE;
-  END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `modificar_tipo` (`p_id_tipo` INT, `p_nuevo_tipo` VARCHAR(150)) RETURNS INT(11)  BEGIN
-    DECLARE rows_affected INT;
-
-    UPDATE tipo
-    SET tipo = p_nuevo_tipo
-    WHERE id_tipo = p_id_tipo;
-
-    SET rows_affected = ROW_COUNT();
-
-    RETURN rows_affected;
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `obtenerCantidadAnimalesPorGenero` (`genero` VARCHAR(10)) RETURNS INT(11)  BEGIN
-  DECLARE cantidad INT;
-  
-  SELECT COUNT(*) INTO cantidad
-  FROM animal
-  WHERE genero = genero;
-  
-  RETURN cantidad;
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `obtenerCantidadAnimalesPorRangoEdad` (`edadMinima` INT, `edadMaxima` INT) RETURNS INT(11)  BEGIN
-  DECLARE cantidad INT;
-  
-  SELECT COUNT(*) INTO cantidad
-  FROM animal
-  WHERE edad >= edadMinima AND edad <= edadMaxima;
-  
-  RETURN cantidad;
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `obtenerCantidadAnimalesTipo` (`idTipoAnimal` INT) RETURNS INT(11)  BEGIN
-  DECLARE cantidad INT;
-  
-  SELECT COUNT(*) INTO cantidad
-  FROM animal
-  WHERE id_tipo_animal = idTipoAnimal;
-  
-  RETURN cantidad;
-END$$
-
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -192,7 +45,7 @@ INSERT INTO `alimento` (`id_alimento`, `nombre`, `id_tipo_alimento`) VALUES
 (5, 'concentrado', 5),
 (6, 'forraje', 6),
 (7, 'avena', 7),
-(8, 'cholado', 8),
+(8, 'maiz', 8),
 (9, 'soja', 9),
 (10, 'alfalfa', 10),
 (11, 'pasto', 11),
@@ -200,22 +53,6 @@ INSERT INTO `alimento` (`id_alimento`, `nombre`, `id_tipo_alimento`) VALUES
 (13, 'verdura', 13),
 (14, 'fruta', 14),
 (15, 'forraje', 15);
-
---
--- Disparadores `alimento`
---
-DELIMITER $$
-CREATE TRIGGER `trigger_actualizar_alimento` AFTER INSERT ON `alimento` FOR EACH ROW BEGIN
- INSERT INTO log_alimento (nombre_alimento, fecha) VALUES (NEW.nombre, NOW());
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `trigger_actualizar_tipo_alimento` AFTER INSERT ON `alimento` FOR EACH ROW BEGIN
-    UPDATE tipo_alimento SET nombre = NEW.nombre WHERE id_tipo_alimento = NEW.id_tipo_alimento;
-END
-$$
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -236,7 +73,7 @@ CREATE TABLE `animal` (
 --
 
 INSERT INTO `animal` (`id_animal`, `peso`, `edad`, `genero`, `id_tipo_animal`) VALUES
-(1, 350, 3, 'Macho', 2),
+(1, 320, 2, 'Hembra', 1),
 (2, 320, 2, 'Hembra', 2),
 (3, 720, 2, 'Hembra', 3),
 (4, 650, 2, 'Hembra', 3),
@@ -251,27 +88,6 @@ INSERT INTO `animal` (`id_animal`, `peso`, `edad`, `genero`, `id_tipo_animal`) V
 (13, 364, 2, 'Hembra', 13),
 (14, 365, 2, 'Hembra', 14),
 (15, 405, 2, 'Hembra', 15);
-
---
--- Disparadores `animal`
---
-DELIMITER $$
-CREATE TRIGGER `after_delete_animal` AFTER DELETE ON `animal` FOR EACH ROW BEGIN
-    DELETE FROM chequeo WHERE id_animal = OLD.id_animal;
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `before_update_animal` BEFORE UPDATE ON `animal` FOR EACH ROW BEGIN
-    DECLARE max_peso INT;
-    SET max_peso = 1000; -- Valor máximo permitido para el peso
-    
-    IF NEW.peso > max_peso THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El peso excede el límite permitido.';
-    END IF;
-END
-$$
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -294,7 +110,7 @@ CREATE TABLE `chequeo` (
 --
 
 INSERT INTO `chequeo` (`id_chequeo`, `fecha_chequeo`, `peso`, `recomendaciones`, `id_veterinario`, `id_procedimiento`, `id_animal`) VALUES
-(1, '2023-05-10 09:00:00', '550', 'Revisión adicional requerida', 1, 1, 1),
+(1, '2023-04-28 13:26:53', '500', 'no exceder en los alimentos', 1, 1, 1),
 (2, '2023-04-28 11:13:36', '500', 'no exceder el alimento', 2, 2, 2),
 (3, '2023-04-28 12:13:36', '450', 'mantener alimentación balanceada', 3, 3, 3),
 (4, '2023-04-29 09:13:36', '410', 'proporcionar dos comidas al dia', 4, 4, 4),
@@ -309,18 +125,6 @@ INSERT INTO `chequeo` (`id_chequeo`, `fecha_chequeo`, `peso`, `recomendaciones`,
 (13, '2023-05-01 16:34:30', '240', 'mantener el proceso de lactancia ', 13, 13, 13),
 (14, '2023-04-28 13:26:53', '420', 'debe mantener el peso adecuado durante tres meses ', 14, 14, 15),
 (15, '2023-05-03 16:29:31', '380', 'necita vitaminas para el desarrollo', 15, 15, 15);
-
---
--- Disparadores `chequeo`
---
-DELIMITER $$
-CREATE TRIGGER `after_insert_chequeo` AFTER INSERT ON `chequeo` FOR EACH ROW BEGIN
-    UPDATE animal
-    SET ultima_insercion = NOW()
-    WHERE id_animal = NEW.id_animal;
-END
-$$
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -339,7 +143,7 @@ CREATE TABLE `procedimiento` (
 --
 
 INSERT INTO `procedimiento` (`id_procedimiento`, `fecha_chequeo`, `id_tipo`) VALUES
-(1, '2023-05-10 09:00:00', 3),
+(1, '2023-04-28 13:26:53', 1),
 (2, '2023-04-29 14:26:53', 2),
 (3, '2023-04-28 13:26:53', 3),
 (4, '2023-04-28 14:26:53', 4),
@@ -389,22 +193,7 @@ INSERT INTO `suministro` (`id_suministro`, `hora`, `cantidad`, `id_trabajador`, 
 (12, '12:05:36', 2, 12, 12, 12),
 (13, '10:05:36', 3, 13, 13, 13),
 (14, '11:13:09', 2, 14, 14, 14),
-(15, '16:04:09', 5, 15, 15, 15),
-(16, '14:30:00', 4, 5, 6, 7);
-
---
--- Disparadores `suministro`
---
-DELIMITER $$
-CREATE TRIGGER `suministro_trigger` AFTER UPDATE ON `suministro` FOR EACH ROW BEGIN
-    -- Actualizar la tabla "inventario" con la información modificada del suministro
-    UPDATE inventario
-    SET cantidad = NEW.cantidad,
-        hora = NEW.hora
-    WHERE id_suministro = OLD.id_suministro;
-END
-$$
-DELIMITER ;
+(15, '16:04:09', 5, 15, 15, 15);
 
 -- --------------------------------------------------------
 
@@ -438,17 +227,6 @@ INSERT INTO `tipo` (`id_tipo`, `tipo`) VALUES
 (14, 'Proporcionar un espacio adecuado para el parto y la cría de los terneros o crías'),
 (15, 'Proporcionar un ambiente adecuado para el crecimiento y desarrollo de los animales jóvenes, y controlar el destete para minimizar el estrés.');
 
---
--- Disparadores `tipo`
---
-DELIMITER $$
-CREATE TRIGGER `after_tipo_update` AFTER UPDATE ON `tipo` FOR EACH ROW BEGIN
-    -- Actualizar la fecha de actualización
-    UPDATE tipo SET fecha_actualizacion = CURRENT_TIMESTAMP WHERE id_tipo = NEW.id_tipo;
-END
-$$
-DELIMITER ;
-
 -- --------------------------------------------------------
 
 --
@@ -479,18 +257,7 @@ INSERT INTO `tipo_alimento` (`id_tipo_alimento`, `nombre`) VALUES
 (12, 'caña de azucar'),
 (13, 'remolacha'),
 (14, 'concentrado de proteina de soja '),
-(15, 'silo de hierva');
-
---
--- Disparadores `tipo_alimento`
---
-DELIMITER $$
-CREATE TRIGGER `before_tipo_alimento_update` BEFORE UPDATE ON `tipo_alimento` FOR EACH ROW BEGIN
-    -- Modificar la descripción
-    SET NEW.nombre = CONCAT('Prefijo: ', NEW.nombre);
-END
-$$
-DELIMITER ;
+(15, 'silo de hierva');
 
 -- --------------------------------------------------------
 
@@ -523,17 +290,6 @@ INSERT INTO `tipo_animal` (`id_tipo_animal`, `raza`) VALUES
 (13, ' simmental'),
 (14, ' shorthor'),
 (15, 'Ganado porcino');
-
---
--- Disparadores `tipo_animal`
---
-DELIMITER $$
-CREATE TRIGGER `before_tipo_animal_update` BEFORE UPDATE ON `tipo_animal` FOR EACH ROW BEGIN
-    -- Modificar la raza en caso de actualización
-    SET NEW.raza = UPPER(NEW.raza);
-END
-$$
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -568,17 +324,6 @@ INSERT INTO `trabajor` (`id_trabajador`, `telefono`, `nombre`) VALUES
 (14, 31234232, ' brayan'),
 (15, 31211332, ' Laura');
 
---
--- Disparadores `trabajor`
---
-DELIMITER $$
-CREATE TRIGGER `trabajador_trigger` AFTER INSERT ON `trabajor` FOR EACH ROW BEGIN
-    -- Actualizar la tabla "registro_trabajador" con la información del nuevo trabajador
-    INSERT INTO registro_trabajador (id_trabajador, fecha_registro) VALUES (NEW.id_trabajador, NOW());
-END
-$$
-DELIMITER ;
-
 -- --------------------------------------------------------
 
 --
@@ -611,255 +356,7 @@ INSERT INTO `veterinario` (`id_veterinario`, `nombre`, `telefono`, `especializac
 (12, 'Camila Gomez', 319323343, 'nutriccion animal'),
 (13, 'Andrea Muñoz', 318323343, 'veterinario zootecnista'),
 (14, 'Daniela Ceron', 321323343, 'mejoramiento animal'),
-(15, 'Mariana cierra', 325323343, 'veterinario zootecnista'),
-(16, 'Pedro Sanchez', 327323343, 'produccion animal');
-
---
--- Disparadores `veterinario`
---
-DELIMITER $$
-CREATE TRIGGER `veterinario_trigger` AFTER UPDATE ON `veterinario` FOR EACH ROW BEGIN
-    -- Actualizar la tabla "registro_veterinario" con la información modificada del veterinario
-    UPDATE registro_veterinario
-    SET nombre = NEW.nombre,
-        telefono = NEW.telefono,
-        especializacion = NEW.especializacion
-    WHERE id_veterinario = OLD.id_veterinario;
-END
-$$
-DELIMITER ;
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `vista_animal`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `vista_animal` (
-`peso` int(50)
-,`edad` int(50)
-);
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `vista_animales_alimento`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `vista_animales_alimento` (
-`id_animal` int(11)
-,`peso` int(50)
-,`edad` int(50)
-,`genero` varchar(50)
-,`tipo` varchar(150)
-,`tipo_alimento` varchar(150)
-);
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `vista_animales_chequeo`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `vista_animales_chequeo` (
-`id_animal` int(11)
-,`peso` int(50)
-,`edad` int(50)
-,`genero` varchar(50)
-,`fecha_chequeo` datetime
-,`peso_chequeo` varchar(150)
-,`recomendaciones` varchar(50)
-);
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `vista_animales_procedimiento`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `vista_animales_procedimiento` (
-`id_animal` int(11)
-,`peso` int(50)
-,`edad` int(50)
-,`genero` varchar(50)
-,`fecha_chequeo` datetime
-,`tipo_procedimiento` varchar(150)
-);
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `vista_animales_suministro`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `vista_animales_suministro` (
-`id_animal` int(11)
-,`peso` int(50)
-,`edad` int(50)
-,`genero` varchar(50)
-,`hora` time
-,`cantidad` int(11)
-,`trabajador` varchar(30)
-,`tipo_alimento` varchar(150)
-);
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `vista_animales_tipo_alimento`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `vista_animales_tipo_alimento` (
-`id_animal` int(11)
-,`peso` int(50)
-,`edad` int(50)
-,`genero` varchar(50)
-,`tipo_recomendado` varchar(150)
-,`tipo_alimento` varchar(150)
-);
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `vista_animales_veterinario`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `vista_animales_veterinario` (
-`id_animal` int(11)
-,`peso` int(50)
-,`edad` int(50)
-,`genero` varchar(50)
-,`veterinario` varchar(20)
-,`especializacion` varchar(30)
-);
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `vista_chequeos`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `vista_chequeos` (
-`id_chequeo` int(11)
-,`fecha_chequeo` datetime
-,`peso` varchar(150)
-,`recomendaciones` varchar(50)
-,`veterinario` varchar(20)
-,`tipo_procedimiento` int(11)
-);
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `vista_procedimientos`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `vista_procedimientos` (
-`id_procedimiento` int(11)
-,`fecha_chequeo` datetime
-,`tipo` varchar(150)
-);
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `vista_tipos_animales_alimento`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `vista_tipos_animales_alimento` (
-`tipo_animal` varchar(150)
-,`tipos_alimento` mediumtext
-);
-
--- --------------------------------------------------------
-
---
--- Estructura para la vista `vista_animal`
---
-DROP TABLE IF EXISTS `vista_animal`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_animal`  AS SELECT `animal`.`peso` AS `peso`, `animal`.`edad` AS `edad` FROM `animal` ;
-
--- --------------------------------------------------------
-
---
--- Estructura para la vista `vista_animales_alimento`
---
-DROP TABLE IF EXISTS `vista_animales_alimento`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_animales_alimento`  AS SELECT `a`.`id_animal` AS `id_animal`, `a`.`peso` AS `peso`, `a`.`edad` AS `edad`, `a`.`genero` AS `genero`, `t`.`tipo` AS `tipo`, `al`.`nombre` AS `tipo_alimento` FROM ((`animal` `a` join `tipo` `t` on(`a`.`id_tipo_animal` = `t`.`id_tipo`)) join `alimento` `al` on(`a`.`id_tipo_animal` = `al`.`id_tipo_alimento`)) ;
-
--- --------------------------------------------------------
-
---
--- Estructura para la vista `vista_animales_chequeo`
---
-DROP TABLE IF EXISTS `vista_animales_chequeo`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_animales_chequeo`  AS SELECT `a`.`id_animal` AS `id_animal`, `a`.`peso` AS `peso`, `a`.`edad` AS `edad`, `a`.`genero` AS `genero`, `c`.`fecha_chequeo` AS `fecha_chequeo`, `c`.`peso` AS `peso_chequeo`, `c`.`recomendaciones` AS `recomendaciones` FROM (`animal` `a` join `chequeo` `c` on(`a`.`id_animal` = `c`.`id_animal`)) ;
-
--- --------------------------------------------------------
-
---
--- Estructura para la vista `vista_animales_procedimiento`
---
-DROP TABLE IF EXISTS `vista_animales_procedimiento`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_animales_procedimiento`  AS SELECT `a`.`id_animal` AS `id_animal`, `a`.`peso` AS `peso`, `a`.`edad` AS `edad`, `a`.`genero` AS `genero`, `p`.`fecha_chequeo` AS `fecha_chequeo`, `t`.`tipo` AS `tipo_procedimiento` FROM (((`animal` `a` join `chequeo` `c` on(`a`.`id_animal` = `c`.`id_animal`)) join `procedimiento` `p` on(`c`.`id_procedimiento` = `p`.`id_procedimiento`)) join `tipo` `t` on(`p`.`id_tipo` = `t`.`id_tipo`)) ;
-
--- --------------------------------------------------------
-
---
--- Estructura para la vista `vista_animales_suministro`
---
-DROP TABLE IF EXISTS `vista_animales_suministro`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_animales_suministro`  AS SELECT `a`.`id_animal` AS `id_animal`, `a`.`peso` AS `peso`, `a`.`edad` AS `edad`, `a`.`genero` AS `genero`, `s`.`hora` AS `hora`, `s`.`cantidad` AS `cantidad`, `t`.`nombre` AS `trabajador`, `al`.`nombre` AS `tipo_alimento` FROM (((`animal` `a` join `suministro` `s` on(`a`.`id_animal` = `s`.`id_animal`)) join `trabajor` `t` on(`s`.`id_trabajador` = `t`.`id_trabajador`)) join `alimento` `al` on(`s`.`id_alimento` = `al`.`id_alimento`)) ;
-
--- --------------------------------------------------------
-
---
--- Estructura para la vista `vista_animales_tipo_alimento`
---
-DROP TABLE IF EXISTS `vista_animales_tipo_alimento`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_animales_tipo_alimento`  AS SELECT `a`.`id_animal` AS `id_animal`, `a`.`peso` AS `peso`, `a`.`edad` AS `edad`, `a`.`genero` AS `genero`, `t`.`tipo` AS `tipo_recomendado`, `al`.`nombre` AS `tipo_alimento` FROM ((`animal` `a` join `tipo` `t` on(`a`.`id_tipo_animal` = `t`.`id_tipo`)) join `alimento` `al` on(`a`.`id_tipo_animal` = `al`.`id_tipo_alimento`)) ;
-
--- --------------------------------------------------------
-
---
--- Estructura para la vista `vista_animales_veterinario`
---
-DROP TABLE IF EXISTS `vista_animales_veterinario`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_animales_veterinario`  AS SELECT `a`.`id_animal` AS `id_animal`, `a`.`peso` AS `peso`, `a`.`edad` AS `edad`, `a`.`genero` AS `genero`, `v`.`nombre` AS `veterinario`, `v`.`especializacion` AS `especializacion` FROM ((`animal` `a` join `chequeo` `c` on(`a`.`id_animal` = `c`.`id_animal`)) join `veterinario` `v` on(`c`.`id_veterinario` = `v`.`id_veterinario`)) ;
-
--- --------------------------------------------------------
-
---
--- Estructura para la vista `vista_chequeos`
---
-DROP TABLE IF EXISTS `vista_chequeos`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_chequeos`  AS SELECT `c`.`id_chequeo` AS `id_chequeo`, `c`.`fecha_chequeo` AS `fecha_chequeo`, `c`.`peso` AS `peso`, `c`.`recomendaciones` AS `recomendaciones`, `v`.`nombre` AS `veterinario`, `p`.`id_tipo` AS `tipo_procedimiento` FROM ((`chequeo` `c` join `veterinario` `v` on(`c`.`id_veterinario` = `v`.`id_veterinario`)) join `procedimiento` `p` on(`c`.`id_procedimiento` = `p`.`id_procedimiento`)) ;
-
--- --------------------------------------------------------
-
---
--- Estructura para la vista `vista_procedimientos`
---
-DROP TABLE IF EXISTS `vista_procedimientos`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_procedimientos`  AS SELECT `p`.`id_procedimiento` AS `id_procedimiento`, `p`.`fecha_chequeo` AS `fecha_chequeo`, `t`.`tipo` AS `tipo` FROM (`procedimiento` `p` join `tipo` `t` on(`p`.`id_tipo` = `t`.`id_tipo`)) ;
-
--- --------------------------------------------------------
-
---
--- Estructura para la vista `vista_tipos_animales_alimento`
---
-DROP TABLE IF EXISTS `vista_tipos_animales_alimento`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_tipos_animales_alimento`  AS SELECT `t`.`tipo` AS `tipo_animal`, group_concat(`al`.`nombre` separator ', ') AS `tipos_alimento` FROM ((`tipo` `t` join `animal` `a` on(`a`.`id_tipo_animal` = `t`.`id_tipo`)) join `alimento` `al` on(`a`.`id_tipo_animal` = `al`.`id_tipo_alimento`)) GROUP BY `t`.`tipo` ;
+(15, 'Mariana cierra', 325323343, 'veterinario zootecnista');
 
 --
 -- Índices para tablas volcadas
@@ -976,3 +473,67 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+/* consultas 10
+
+1-Seleccionar todos los registros de una tabla:
+SELECT * FROM suministro;
+2-Contar el número de registros en una tabla:
+SELECT COUNT(*) FROM tipo;
+3-suma del peso de todos los animales
+SELECT SUM(peso) FROM animal;
+4-muestra el peso maximo entre todo el ganado de cheque
+SELECT MAX(peso) FROM chequeo;
+5-consulta de la minima cantidad de suministro
+SELECT MIN(cantidad) FROM suministro;
+6-consulta de trascurrido entre  ¨x" a "y"
+SELECT * FROM chequeo WHERE fecha_chequeo BETWEEN '2023-04-28' AND '2023-04-29';
+7-agrupar registros de dos columnas mostrando la primer columna como principal
+SELECT nombre, telefono FROM veterinario GROUP BY nombre;
+8-agrupa los valores relacionados con la búsqueda
+SELECT * FROM animal WHERE peso IN (320, 720, 650);
+9-busca valores similares
+SELECT * FROM animal WHERE peso LIKE '320';
+10-eliminar registro de una tabla
+DELETE FROM animal WHERE peso= 550;
+
+----conslultas joins 10
+1-Busca los chequeos realizados por los veterinarios
+SELECT chequeo.*, veterinario.nombre FROM chequeo INNER JOIN veterinario ON chequeo.id_veterinario = veterinario.id_veterinario;
+
+2- Selecciona la fecha de la tabla chequeo de cada animal, con su respectivo género y cantidad de alimento que se toma de la tabla suministro
+SELECT animal.id_animal,chequeo.fecha_chequeo, animal.genero, suministro.cantidad FROM chequeo LEFT JOIN animal ON chequeo.id_animal = animal.id_animal LEFT JOIN suministro ON suministro.id_animal = animal.id_animal;
+
+3-selecciona el id de chequeo con las recomendaciones asignadas a cada animal los cuales también mostrará sus respectivos id
+SELECT animal.id_animal,chequeo.id_chequeo, chequeo.recomendaciones FROM animal LEFT JOIN chequeo ON chequeo.id_animal = animal.id_animal;
+
+4-Selecciona el id de animal  y recomendación hecha en el chequeo para así seguir de una buena manera la crianza del animal.
+SELECT animal.id_animal, chequeo.recomendaciones FROM animal INNER JOIN chequeo ON chequeo.id_animal = animal.id_animal;
+ 
+ 5- Selecciona el alimento  con su respectivo id y  la cantidad total del suministro
+SELECT alimento.nombre, alimento.id_alimento, SUM(suministro.cantidad) AS 'cantidad total' FROM alimento INNER JOIN suministro ON alimento.id_alimento = suministro.id_alimento INNER JOIN animal ON suministro.id_animal = animal.id_animal GROUP BY alimento.nombre, alimento.id_alimento;
+
+6- Selecciona trabajador mostrando los nombres de cada uno,suministro brindara las horas que se  utilizaran para el manejo del alimento
+SELECT trabajor.id_trabajador,trabajor.nombre, suministro.hora, alimento.nombre FROM trabajor LEFT JOIN suministro ON suministro.id_trabajador = trabajor.id_trabajador LEFT JOIN alimento ON suministro.id_alimento = alimento.id_alimento;
+
+7- Selecciona la tabla procedimiento tomando el tipo, luego obtiene la hora y fecha de la tabla chequeo, para así poder informar cual es el tipo de procedimiento que se debe seguir
+SELECT procedimiento.fecha_chequeo,tipo.tipo, suministro.hora FROM procedimiento LEFT JOIN tipo ON procedimiento.id_tipo = tipo.id_tipo LEFT JOIN suministro ON procedimiento.id_procedimiento = suministro.id_animal WHERE suministro.id_suministro IS NOT NULL;
+
+8-muestra el id del animal con el nombre de la raza y el peso de cada uno para asi diferenciar los pesos del ganado  
+SELECT animal.id_animal,animal.peso, tipo_animal.raza FROM animal LEFT JOIN tipo_animal ON animal.id_tipo_animal = tipo_animal.id_tipo_animal;
+
+9- Obtiene las recomendaciones con su id desde chequeo, por otro lado obtiene id y género desde la tabla animal, así facilitando el seguimiento que se le debe hacer a cada animal con su respectivo género
+SELECT chequeo.id_chequeo, chequeo.recomendaciones,animal.id_animal, `animal`.`genero` FROM `chequeo` LEFT JOIN animal ON chequeo.id_animal = animal.id_animal;
+
+10-Obtiene el  id veterinario y especialización, toma la tabla animal escogiendo su id, por otro lado toma a chequeo para utilizar las recomendaciones, así ayudando a tener un mejor conocimiento sobre los veterinarios y su objetivo en los animales
+SELECT veterinario.id_veterinario, veterinario.especializacion, chequeo.recomendaciones, animal.id_animal FROM veterinario LEFT JOIN chequeo ON chequeo.id_veterinario = veterinario.id_veterinario LEFT JOIN animal ON chequeo.id_animal = animal.id_animal;
+ integrantes
+ jose Alexander Aroca Mera
+Camilo Reyes Fernandez
+Brayan Yela Mera
+Andres Quiñonez Ruiz
+Julio  Castillo Acosta
+Ana Ordoñez Ruiz
+
+*/
+
